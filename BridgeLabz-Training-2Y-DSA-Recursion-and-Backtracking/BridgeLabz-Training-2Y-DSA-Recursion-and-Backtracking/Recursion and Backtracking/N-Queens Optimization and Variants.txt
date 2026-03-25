@@ -1,0 +1,285 @@
+Problem 3: N-Queens Optimization and Variants
+
+
+------------------------------------------------
+a) Search Space Analysis for 8-Queens
+------------------------------------------------
+
+1) Brute Force Search Space
+
+If we ignore all constraints, every square on the board could either contain
+a queen or not.
+
+Total squares = 8 × 8 = 64
+
+We must choose 8 squares out of 64.
+
+Search Space = C(64,8)
+
+C(64,8) = 4,426,165,368
+
+So brute force would examine about 4.4 billion possibilities.
+
+
+2) With “One Queen Per Row” Constraint
+
+Instead of choosing any 8 squares, we place exactly one queen in each row.
+
+Each row has 8 column choices.
+
+Search Space = 8^8
+
+8^8 = 16,777,216 possibilities
+
+
+3) Backtracking Exploration Estimate
+
+Backtracking eliminates placements where queens attack each other.
+
+Rules checked:
+• No same column
+• No same diagonal
+
+Thus invalid placements are pruned early.
+
+Typical explored nodes for 8-queens with pruning:
+≈ 15,000 – 20,000 states
+
+Reason:
+Most branches terminate after placing only 2–4 queens due to conflicts,
+so the algorithm avoids exploring the full 8^8 possibilities.
+
+
+------------------------------------------------
+b) Optimized N-Queens Using 1D Array
+------------------------------------------------
+
+Idea:
+Instead of storing the entire board, store only column positions.
+
+board[row] = column of queen in that row
+
+Example:
+board = [1,3,0,2]
+
+means
+
+Row0 → Col1
+Row1 → Col3
+Row2 → Col0
+Row3 → Col2
+
+
+Additional Tracking Arrays
+
+columns[c] → column already occupied
+diag1[r+c] → main diagonal occupied
+diag2[r−c+N−1] → anti-diagonal occupied
+
+
+Why this is faster
+
+Basic solution:
+Must scan entire board to check safety.
+
+Optimized solution:
+Safety check becomes O(1) using arrays.
+
+
+Pseudocode
+
+function solveNQueens(row):
+
+    if row == N:
+        print solution
+        return
+
+    for col from 0 to N-1:
+
+        if columns[col] == false AND
+           diag1[row+col] == false AND
+           diag2[row-col+N-1] == false:
+
+            board[row] = col
+
+            columns[col] = true
+            diag1[row+col] = true
+            diag2[row-col+N-1] = true
+
+            solveNQueens(row + 1)
+
+            columns[col] = false
+            diag1[row+col] = false
+            diag2[row-col+N-1] = false
+
+
+------------------------------------------------
+c) Trace for N = 4
+------------------------------------------------
+
+Board Representation
+
+board[row] = column
+
+Start:
+
+board = [-,-,-,-]
+
+
+Step 1
+Row 0 → place at column 0
+
+board = [0,-,-,-]
+
+columns = [T,F,F,F]
+diag1 = mark index 0
+diag2 = mark index 3
+
+
+Step 2
+Row 1
+
+Try col0 → column conflict ❌
+Try col1 → diagonal conflict ❌
+Try col2 → valid ✔
+
+board = [0,2,-,-]
+
+
+Step 3
+Row 2
+
+Try col0 → column conflict ❌
+Try col1 → diagonal conflict ❌
+Try col2 → column conflict ❌
+Try col3 → diagonal conflict ❌
+
+No valid move → BACKTRACK
+
+
+Backtrack
+
+Remove queen from row1 col2
+
+board = [0,-,-,-]
+
+
+Row1 try next column
+
+col3 ✔
+
+board = [0,3,-,-]
+
+
+Step 4
+Row2
+
+Try col0 → column conflict ❌
+Try col1 → valid ✔
+
+board = [0,3,1,-]
+
+
+Step 5
+Row3
+
+col0 ❌
+col1 ❌
+col2 ❌
+col3 ❌
+
+No valid position → BACKTRACK
+
+
+Eventually algorithm finds first valid solution:
+
+board = [1,3,0,2]
+
+
+Board form
+
+. Q . .
+. . . Q
+Q . . .
+. . Q .
+
+
+------------------------------------------------
+d) Finding Only ONE Solution Quickly
+------------------------------------------------
+
+Normally algorithm searches for all solutions.
+
+Modification:
+
+Stop recursion immediately after first solution.
+
+Add global flag:
+
+solutionFound = false
+
+
+Modified Base Case
+
+if row == N:
+    print solution
+    solutionFound = true
+    return
+
+
+Before recursive calls:
+
+if solutionFound:
+    return
+
+
+This stops further search once first solution is discovered.
+
+
+------------------------------------------------
+e) N-Queens with Forbidden Squares
+------------------------------------------------
+
+Some cells cannot contain queens.
+
+Use an additional matrix:
+
+forbidden[row][col]
+
+
+Modify condition:
+
+if columns[col] == false AND
+   diag1[row+col] == false AND
+   diag2[row-col+N-1] == false AND
+   forbidden[row][col] == false
+
+then place queen.
+
+
+Impact on Complexity
+
+Worst-case complexity remains exponential.
+
+Still roughly:
+
+O(N!)
+
+because queens must be arranged in permutations.
+
+However in practice:
+
+Forbidden squares reduce available placements,
+so many branches terminate earlier,
+making the search faster.
+
+
+------------------------------------------------
+Key Optimization Ideas
+------------------------------------------------
+
+1. Use 1D array instead of full board.
+2. Use column tracking arrays.
+3. Track diagonals with r+c and r−c.
+4. Stop early when only one solution needed.
+5. Add constraints (forbidden squares) easily.

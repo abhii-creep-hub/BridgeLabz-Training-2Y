@@ -1,0 +1,264 @@
+Problem 2: Backtracking Template Application
+
+Grid:
+C A T S
+O R E A
+D E A M
+E L L S
+
+Target Word: DREAM
+
+
+------------------------------------------------
+a) Backtracking Algorithm Design
+------------------------------------------------
+
+State Representation
+- Current position in the grid (row, column)
+- Current index of the word being matched
+- Visited matrix to ensure letters are not reused
+
+Choices at Each Step
+- Move to any adjacent cell (8 directions):
+  Up, Down, Left, Right, Diagonal directions
+
+Constraints
+- Next cell must match the next character of the word
+- Cell must not be already visited
+- Cell must be within grid boundaries
+
+Goal Condition
+- If index == length of word → word successfully formed
+
+
+Pseudocode:
+
+function exist(board, word):
+    rows = number of rows
+    cols = number of columns
+    
+    visited = 2D array initialized to false
+
+    for i from 0 to rows-1:
+        for j from 0 to cols-1:
+            if board[i][j] == word[0]:
+                if backtrack(i, j, 0):
+                    return true
+
+    return false
+
+
+function backtrack(row, col, index):
+
+    if index == length(word):
+        return true
+
+    if row < 0 OR col < 0 OR row >= rows OR col >= cols:
+        return false
+
+    if visited[row][col] == true:
+        return false
+
+    if board[row][col] != word[index]:
+        return false
+
+    visited[row][col] = true
+
+    for each direction in 8 possible directions:
+        newRow = row + direction.row
+        newCol = col + direction.col
+
+        if backtrack(newRow, newCol, index + 1):
+            return true
+
+    visited[row][col] = false   // Backtrack
+
+    return false
+
+
+------------------------------------------------
+b) Decision Tree for "DREAM"
+------------------------------------------------
+
+Start at letter D
+
+Grid position of D:
+(2,0)
+
+Decision Tree:
+
+D(2,0)
+│
+├── E(2,1)
+│   │
+│   ├── R(1,1)
+│   │   │
+│   │   ├── A(2,2)
+│   │   │   │
+│   │   │   └── M(2,3)  ✔ SUCCESS
+│   │   │
+│   │   └── other neighbors → backtrack
+│   │
+│   └── other neighbors → backtrack
+│
+└── other neighbors → backtrack
+
+
+Successful Path:
+
+D(2,0) → E(2,1) → R(1,1) → A(2,2) → M(2,3)
+
+Backtracking Points:
+- When a neighbor does not match the next character
+- When a visited cell is encountered
+- When all neighbors fail
+
+
+------------------------------------------------
+c) Execution Trace
+------------------------------------------------
+
+Step 1
+Start scanning grid → find D at (2,0)
+
+State:
+Word index = 0
+Path = [D]
+
+Step 2
+Find next letter E
+
+Possible neighbors:
+(1,0) = O ❌
+(2,1) = E ✔
+
+Move to (2,1)
+
+State:
+Path = [D, E]
+
+Step 3
+Find R
+
+Neighbors checked:
+(1,1) = R ✔
+
+Move to (1,1)
+
+State:
+Path = [D, E, R]
+
+Step 4
+Find A
+
+Neighbors checked:
+(2,2) = A ✔
+
+Move to (2,2)
+
+State:
+Path = [D, E, R, A]
+
+Step 5
+Find M
+
+Neighbors checked:
+(2,3) = M ✔
+
+State:
+Path = [D, E, R, A, M]
+
+Goal reached → return TRUE
+
+If at any point a neighbor fails:
+- Mark cell unvisited
+- Return to previous step
+- Try next option (backtracking)
+
+
+------------------------------------------------
+d) Worst Case Time Complexity
+------------------------------------------------
+
+Let:
+N = rows
+M = columns
+L = length of word
+
+Each step can explore up to 8 neighbors.
+
+Worst case:
+
+Time Complexity = O(N × M × 8^L)
+
+Explanation:
+- Start from every cell → N×M
+- At each character → up to 8 choices
+- Depth = L
+
+
+Space Complexity:
+
+O(L)
+
+because recursion stack depth equals word length.
+
+
+------------------------------------------------
+e) Finding ALL Possible Ways
+------------------------------------------------
+
+Current algorithm stops when first solution is found.
+
+To find ALL paths:
+
+Modification:
+- Do not return immediately when solution found
+- Store path in a list
+- Continue exploring other branches
+
+
+Additional Data Structure Needed
+
+List of paths
+
+Example:
+
+solutions = []
+
+
+Modified Base Case:
+
+if index == length(word):
+    add current path to solutions
+    return
+
+
+We must also store the path:
+
+path = list storing coordinates
+
+
+Example Stored Solution:
+
+[(2,0), (2,1), (1,1), (2,2), (2,3)]
+
+
+Final Result:
+
+solutions = [
+   path1,
+   path2,
+   path3
+]
+
+
+------------------------------------------------
+Key Backtracking Components Summary
+------------------------------------------------
+
+State → current cell + visited matrix + index
+Choices → 8 adjacent cells
+Constraints → bounds, not visited, correct letter
+Goal → matched all characters in word
+Backtracking → unmark visited and explore next choice

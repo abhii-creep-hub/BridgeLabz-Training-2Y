@@ -1,0 +1,208 @@
+Problem 1: Understanding Recursion Mechanics
+
+Directory Structure
+project/
+├── src/
+│   ├── main.java (100 KB)
+│   └── utils.java (50 KB)
+├── docs/
+│   ├── readme.txt (10 KB)
+│   └── guides/
+│       └── setup.pdf (200 KB)
+└── config.xml (20 KB)
+
+
+-----------------------------------------
+a) Recursive Function Structure (Pseudocode)
+-----------------------------------------
+
+Base Case:
+If the node is a file, return its size.
+
+Recursive Case:
+If the node is a directory, recursively calculate the size of all items inside it.
+
+Pseudocode:
+
+function getDirectorySize(node):
+    if node is a file:
+        return node.size
+    
+    totalSize = 0
+    
+    for each item in node.contents:
+        totalSize = totalSize + getDirectorySize(item)
+    
+    return totalSize
+
+
+-----------------------------------------
+b) Execution Trace and Call Stack
+-----------------------------------------
+
+1. Call getDirectorySize(project)
+
+Call Stack:
+getDirectorySize(project)
+
+2. Explore src
+
+Call Stack:
+getDirectorySize(project)
+    getDirectorySize(src)
+
+3. Explore main.java
+
+Call Stack:
+getDirectorySize(project)
+    getDirectorySize(src)
+        getDirectorySize(main.java)
+
+Return 100
+
+4. Explore utils.java
+
+Call Stack:
+getDirectorySize(project)
+    getDirectorySize(src)
+        getDirectorySize(utils.java)
+
+Return 50
+
+src size = 100 + 50 = 150
+Return 150
+
+5. Explore docs
+
+Call Stack:
+getDirectorySize(project)
+    getDirectorySize(docs)
+
+Explore readme.txt
+Return 10
+
+Explore guides
+
+Call Stack:
+getDirectorySize(project)
+    getDirectorySize(docs)
+        getDirectorySize(guides)
+            getDirectorySize(setup.pdf)
+
+Return 200
+
+guides size = 200
+docs size = 10 + 200 = 210
+Return 210
+
+6. Explore config.xml
+Return 20
+
+
+Final Calculation:
+
+project size =
+src (150) + docs (210) + config.xml (20)
+
+Total Size = 380 KB
+
+
+-----------------------------------------
+c) Time Complexity
+-----------------------------------------
+
+Let:
+F = number of files
+D = number of directories
+N = total nodes (files + directories)
+
+Each file and directory is visited exactly once.
+
+Time Complexity = O(N)
+
+Space Complexity (recursion stack) = O(h)
+
+Where h is the maximum depth of the directory tree.
+
+
+-----------------------------------------
+d) Iterative Solution
+-----------------------------------------
+
+Yes, this problem can also be solved iteratively.
+
+Required Data Structure:
+Stack (for Depth First Traversal)
+
+Iterative Pseudocode:
+
+function getDirectorySize(root):
+    stack.push(root)
+    totalSize = 0
+
+    while stack is not empty:
+        node = stack.pop()
+
+        if node is a file:
+            totalSize = totalSize + node.size
+        else:
+            for each item in node.contents:
+                stack.push(item)
+
+    return totalSize
+
+
+Comparison of Recursive vs Iterative
+
+Recursive:
+- Simple and readable
+- Uses system call stack
+- Risk of stack overflow for very deep directories
+
+Iterative:
+- Uses explicit stack
+- More control over memory
+- Slightly more complex to implement
+
+
+-----------------------------------------
+e) Handling Cycles (Symbolic Links)
+-----------------------------------------
+
+If a symbolic link creates a cycle, for example:
+
+project/docs/guides → link → project
+
+The recursion becomes:
+
+project → docs → guides → project → docs → ...
+
+This leads to infinite recursion and stack overflow.
+
+Solution:
+Maintain a set of visited directories.
+
+Modified Pseudocode:
+
+visited = empty set
+
+function getDirectorySize(node):
+
+    if node in visited:
+        return 0
+
+    if node is directory:
+        add node to visited
+
+    if node is file:
+        return node.size
+
+    totalSize = 0
+
+    for each item in node.contents:
+        totalSize = totalSize + getDirectorySize(item)
+
+    return totalSize
+
+
+This prevents revisiting directories and avoids infinite recursion.
